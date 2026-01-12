@@ -1,26 +1,56 @@
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
+import { handlerChirpsValidate } from "./api/chirps.js";
 import { config } from "./config.js";
 
 
 const app = express();
 const PORT = 8080;
 
+
 app.use(middlewareLogResponses);
-app.use("/metrics", middlewareWriteNumReq);
-app.use("/reset", middlewareMetricReset);
+app.use(express.json());
 app.use("/app", middlewareMetricInc, express.static("./src/app"));
 
-app.get("/healthz", (req: Request, res: Response) =>  {
+
+app.get("/api/healthz", (req: Request, res: Response) =>  {
     res.set({
         "Content-Type": "text/plain; charset=utf-8",
     });
     res.status(200).send("OK");
 })
 
+app.get("/admin/metrics", (req: Request, res: Response) => {
+    const num = config.fileserverHits;
+    const html =  `<html><body><h1>Welcome, Chirpy Admin</h1><p>Chirpy has been visited ${num} times!</p></body></html>`;
+
+    res.set({
+        "Content-Type": "text/html; charset=utf-8",
+    });
+    res.status(200).send(html);
+})
+
+
+app.post("/admin/reset", (req: Request, res: Response) => {
+    config.fileserverHits = 0;
+    res.status(200).send("Config has been reset");
+})
+
+app.post("/api/validate_chirp", async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        await handlerChirpsValidate(req, res);
+    } catch (err) {
+        next(err);
+    }
+})
+
+
 app.listen(PORT, () => {
     console.log(`Server on: http://localhost:${PORT}`);
 })
+
+// error route muss als letztes kommen!
+app.use(errorHandler);
 
 
 function middlewareLogResponses(req: Request, res: Response, next: NextFunction) {
@@ -38,13 +68,9 @@ function middlewareMetricInc(req: Request, res: Response, next: NextFunction) {
     next();
 }
 
-function middlewareWriteNumReq(req: Request, res: Response, next: NextFunction) {
-    res.status(200).send(`Hits: ${config.fileserverHits}`);
-    next();
-}
-
-function middlewareMetricReset(req: Request, res: Response, next: NextFunction) {
-    config.fileserverHits = 0;
-    res.status(200).send("Config has been reseted");
-    next();
+function errorHandler(err: Error, req: Request, res: Response, next: NextFunction) {
+    console.log(err);
+    res.status(500).json({
+        error: "Something went wrong on our end"
+    });
 }
