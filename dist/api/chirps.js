@@ -1,8 +1,9 @@
+import { BadRequestError } from "./middleware.js";
 import { respondWithJSON } from "./json.js";
 export async function handlerChirpsValidate(req, res) {
     const parsedBody = req.body["body"];
     if (parsedBody.length > 140) {
-        throw new Error("Chirp is too long");
+        throw new BadRequestError("Chirp is too long. Max length is 140");
     }
     const profane = ["kerfuffle", "sharbert", "fornax"];
     let splitBody = parsedBody.split(" ");

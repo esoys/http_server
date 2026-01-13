@@ -2,6 +2,30 @@ import type { Request, Response, NextFunction } from "express";
 import { config } from "../config.js";
 import { respondWithError } from "./json.js";
 
+export class BadRequestError extends Error {
+    constructor(message: string) {
+        super(message);
+    }
+}
+
+export class UnauthorizedError extends Error {
+    constructor(message: string) {
+        super(message);
+    }
+}
+
+export class ForbiddenError extends Error {
+    constructor(message: string) {
+        super(message);
+    }
+}
+
+export class NotFoundError extends Error {
+    constructor(message: string) {
+        super(message);
+    }
+}
+
 
 export function middlewareLogResponses(req: Request, res: Response, next: NextFunction) {
     res.on("finish", () => {
@@ -14,15 +38,30 @@ export function middlewareLogResponses(req: Request, res: Response, next: NextFu
 }
 
 export function middlewareMetricInc(req: Request, res: Response, next: NextFunction) {
-    config.fileServerHits++;
+    config.api.fileServerHits++;
     next();
 }
 
 export function errorMiddleware(err: Error, _: Request, res: Response, __: NextFunction) {
-    let statusCode = 500;
-    let message = "Something went wrong on our end";
+    let statusCode = 0;
+    let message: string; 
+
+    switch (err.constructor) {
+        case BadRequestError:
+            statusCode = 400;
+            break;
+        case UnauthorizedError:
+            statusCode = 401;
+            break;
+        case ForbiddenError:
+            statusCode = 403;
+            break;
+        case NotFoundError:
+            statusCode = 404;
+            break;
+    }
 
     console.log(err.message);
 
-    respondWithError(res, statusCode, message);
+    respondWithError(res, statusCode, err.message);
 }
