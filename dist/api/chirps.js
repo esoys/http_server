@@ -1,3 +1,4 @@
+import { respondWithJSON } from "./json.js";
 export async function handlerChirpsValidate(req, res) {
     const parsedBody = req.body["body"];
     if (parsedBody.length > 140) {
@@ -16,7 +17,7 @@ export async function handlerChirpsValidate(req, res) {
         }
     }
     const cleanBody = splitBody.join(" ");
-    res.status(200).json({
-        "cleanedBody": cleanBody
+    respondWithJSON(res, 200, {
+        cleanBody: cleanBody,
     });
 }

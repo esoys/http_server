@@ -1,3 +1,3 @@
 export const config = {
-    fileserverHits: 0,
+    fileServerHits: 0,
 };
