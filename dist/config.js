@@ -1,6 +1,6 @@
 process.loadEnvFile();
 const migrationConfig = {
-    migrationsFolder: "./db/out",
+    migrationsFolder: "./src/db/migrations",
 };
 export const config = {
     api: {

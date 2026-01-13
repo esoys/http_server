@@ -18,7 +18,7 @@ type DBConfig = {
 };
 
 const migrationConfig: MigrationConfig = {
-    migrationsFolder: "./db/out",
+    migrationsFolder: "./src/db/migrations",
 };
 
 export const config: Config = {
