@@ -10,6 +10,7 @@ type Config = {
 type APIConfig = {
     fileServerHits: number;
     port: number;
+    platform: string;
 };
 
 type DBConfig = {
@@ -25,6 +26,7 @@ export const config: Config = {
     api: {
         fileServerHits: 0,
         port: Number(envOrThrow("PORT")),
+        platform: envOrThrow("PLATFORM"),
     },
     db: {
         migrationConfig: migrationConfig,
@@ -39,4 +41,11 @@ function envOrThrow(key: string) {
         throw new Error(`Env variable ${key} not present`);
     }
     return value;
+}
+
+function checkPlatform() {
+    const value = process.env["PLATFORM"];
+    if (value !== "dev") {
+        throw new Error("Unauthorized"); 
+    }
 }
