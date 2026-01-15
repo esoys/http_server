@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { BadRequestError } from "./middleware.js";
 import { respondWithJSON } from "./json.js";
-import { createChirp } from "../db/queries/chirps.js";
+import { createChirp, getAllChirps, getChirpById } from "../db/queries/chirps.js";
 
 
 export function chirpsValidate(data: string) {
@@ -31,14 +31,25 @@ export function chirpsValidate(data: string) {
 
 export async function handlerPostChirp(req: Request, res: Response) {
     const data = req.body;
-    console.log("DEBUG CHIRP DATA", data);
     const newChirp = await createChirp({
         body: chirpsValidate(data.body),
         userId: data.userId,
     });
 
     respondWithJSON(res, 201, newChirp);
-
-
-    console.log("DEBUG NEW CHIRP", newChirp);
 };
+
+
+export async function handlerGetAllChirps(req: Request, res: Response) {
+    const result = await getAllChirps();
+    respondWithJSON(res, 200, result);
+}; 
+
+
+export async function handlerGetChirpById(req: Request, res: Response) {
+    const chirpId = String(req.params.chirpID);
+    console.log("PARAMS", chirpId, typeof chirpId);
+    const result = await getChirpById(chirpId);
+
+    respondWithJSON(res, 200, result);
+}

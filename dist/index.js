@@ -4,7 +4,7 @@ import { middlewareMetricInc, middlewareLogResponses, errorMiddleware } from "./
 import { handlerMetrics } from "./api/metrics.js";
 import { handlerReset } from "./api/reset.js";
 import { handlerReadiness } from "./api/readiness.js";
-import { handlerPostChirp } from "./api/chirps.js";
+import { handlerPostChirp, handlerGetAllChirps, handlerGetChirpById } from "./api/chirps.js";
 import { handlerCreateNewUser } from "./api/users.js";
 import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
@@ -20,6 +20,12 @@ app.get("/api/healthz", (req, res, next) => {
 });
 app.get("/admin/metrics", (req, res, next) => {
     Promise.resolve(handlerMetrics(req, res)).catch(next);
+});
+app.get("/api/chirps", (req, res, next) => {
+    Promise.resolve(handlerGetAllChirps(req, res)).catch(next);
+});
+app.get("/api/chirps/:chirpID", (req, res, next) => {
+    Promise.resolve(handlerGetChirpById(req, res)).catch(next);
 });
 app.post("/admin/reset", (req, res, next) => {
     Promise.resolve(handlerReset(req, res)).catch(next);

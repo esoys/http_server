@@ -1,6 +1,6 @@
 import { BadRequestError } from "./middleware.js";
 import { respondWithJSON } from "./json.js";
-import { createChirp } from "../db/queries/chirps.js";
+import { createChirp, getAllChirps, getChirpById } from "../db/queries/chirps.js";
 export function chirpsValidate(data) {
     if (data.length > 140) {
         throw new BadRequestError("Chirp is too long. Max length is 140");
@@ -23,12 +23,21 @@ export function chirpsValidate(data) {
 ;
 export async function handlerPostChirp(req, res) {
     const data = req.body;
-    console.log("DEBUG CHIRP DATA", data);
     const newChirp = await createChirp({
         body: chirpsValidate(data.body),
         userId: data.userId,
     });
     respondWithJSON(res, 201, newChirp);
-    console.log("DEBUG NEW CHIRP", newChirp);
 }
 ;
+export async function handlerGetAllChirps(req, res) {
+    const result = await getAllChirps();
+    respondWithJSON(res, 200, result);
+}
+;
+export async function handlerGetChirpById(req, res) {
+    const chirpId = String(req.params.chirpID);
+    console.log("PARAMS", chirpId, typeof chirpId);
+    const result = await getChirpById(chirpId);
+    respondWithJSON(res, 200, result);
+}
