@@ -6,7 +6,7 @@ import { handlerMetrics } from "./api/metrics.js";
 import { handlerReset } from "./api/reset.js";
 import { handlerReadiness } from "./api/readiness.js";
 import { handlerPostChirp, handlerGetAllChirps, handlerGetChirpById } from "./api/chirps.js";
-import { handlerCreateNewUser } from "./api/users.js";
+import { handlerCreateNewUser, handlerLogin } from "./api/users.js";
 import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -49,6 +49,10 @@ app.post("/api/chirps", (req, res, next) => {
 app.post("/api/users", (req, res, next) => {
     Promise.resolve(handlerCreateNewUser(req, res)).catch(next);
 });
+
+app.post("/api/login", (req, res, next) => {
+    Promise.resolve(handlerLogin(req, res)).catch(next);
+})
 
 
 

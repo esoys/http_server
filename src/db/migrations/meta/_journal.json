@@ -15,6 +15,20 @@
       "when": 1768426468965,
       "tag": "0001_youthful_psynapse",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768605535192,
+      "tag": "0002_wide_moon_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1768605886986,
+      "tag": "0003_moaning_sunspot",
+      "breakpoints": true
     }
   ]
 }
