@@ -2,6 +2,8 @@ import type { Request, Response, NextFunction } from "express";
 import { BadRequestError } from "./middleware.js";
 import { respondWithJSON } from "./json.js";
 import { createChirp, getAllChirps, getChirpById } from "../db/queries/chirps.js";
+import { config } from "../config.js";
+import { getBearerToken, validateJWT } from "../db/auth.js";
 
 
 export function chirpsValidate(data: string) {
@@ -31,9 +33,12 @@ export function chirpsValidate(data: string) {
 
 export async function handlerPostChirp(req: Request, res: Response) {
     const data = req.body;
+    const bearerToken = getBearerToken(req);
+    const userId = validateJWT(bearerToken, config.secret); 
+
     const newChirp = await createChirp({
         body: chirpsValidate(data.body),
-        userId: data.userId,
+        userId: userId,
     });
 
     respondWithJSON(res, 201, newChirp);

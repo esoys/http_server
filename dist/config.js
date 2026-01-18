@@ -12,6 +12,7 @@ export const config = {
         migrationConfig: migrationConfig,
         url: envOrThrow("DB_URL"),
     },
+    secret: envOrThrow("SECRET"),
 };
 function envOrThrow(key) {
     const value = process.env[key];
