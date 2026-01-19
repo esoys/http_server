@@ -1,7 +1,7 @@
 import { createUser, getUserByEmail } from "../db/queries/users.js";
 import { respondWithJSON, respondWithError } from "./json.js";
 import type { Request, Response } from "express";
-import { hashPassword, checkPasswordHash, makeJWT } from "../db/auth.js";
+import { hashPassword, checkPasswordHash, makeJWT, makeRefreshToken } from "../auth.js";
 import type { NewUser } from "../db/schema.js";
 import { config } from "../config.js";
 
@@ -28,16 +28,10 @@ export async function handlerLogin(req: Request, res: Response) {
         respondWithError(res, 401, "Incorrect email or password");
         return;
     }
-    let expiresInSeconds = 3600;
     
-    if (typeof req.body.expiresInSeconds === "number" && req.body.expiresInSeconds > 0) {
-        if (req.body.expiresInSeconds < 3600) {
-            expiresInSeconds = req.body.expiresInSeconds;
-        }
-    }
-    
-    const token = makeJWT(user.id, expiresInSeconds, config.secret); 
+    const token = makeJWT(user.id, config.secret); 
     const publicUser = toPublicUser(user);
+    const newRefreshToken = await makeRefreshToken(user.id);
 
     respondWithJSON(res, 200, {
         id: publicUser.id,
@@ -45,6 +39,7 @@ export async function handlerLogin(req: Request, res: Response) {
         updatedAt: publicUser.updatedAt,
         email: publicUser.email,
         token: token,
+        refreshToken: newRefreshToken.token,
     });
 } 
 

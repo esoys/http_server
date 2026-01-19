@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { makeJWT, validateJWT, hashPassword, checkPasswordHash } from "../src/db/auth.ts";
+import { makeJWT, validateJWT, hashPassword, checkPasswordHash } from "../src/auth.ts";
 
 
 describe("Password Hashing", () => {

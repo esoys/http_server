@@ -1,8 +1,8 @@
 import { BadRequestError } from "./middleware.js";
-import { respondWithJSON } from "./json.js";
+import { respondWithJSON, respondWithError } from "./json.js";
 import { createChirp, getAllChirps, getChirpById } from "../db/queries/chirps.js";
 import { config } from "../config.js";
-import { getBearerToken, validateJWT } from "../db/auth.js";
+import { getBearerToken, validateJWT } from "../auth.js";
 export function chirpsValidate(data) {
     if (data.length > 140) {
         throw new BadRequestError("Chirp is too long. Max length is 140");
@@ -25,8 +25,15 @@ export function chirpsValidate(data) {
 ;
 export async function handlerPostChirp(req, res) {
     const data = req.body;
-    const bearerToken = getBearerToken(req);
-    const userId = validateJWT(bearerToken, config.secret);
+    let userId;
+    try {
+        const bearerToken = getBearerToken(req);
+        userId = validateJWT(bearerToken, config.secret);
+    }
+    catch (err) {
+        respondWithError(res, 401, `Authentification failed: ${err}`);
+        return;
+    }
     const newChirp = await createChirp({
         body: chirpsValidate(data.body),
         userId: userId,

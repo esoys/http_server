@@ -1,9 +1,9 @@
 import type { Request, Response, NextFunction } from "express";
 import { BadRequestError } from "./middleware.js";
-import { respondWithJSON } from "./json.js";
+import { respondWithJSON, respondWithError } from "./json.js";
 import { createChirp, getAllChirps, getChirpById } from "../db/queries/chirps.js";
 import { config } from "../config.js";
-import { getBearerToken, validateJWT } from "../db/auth.js";
+import { getBearerToken, validateJWT } from "../auth.js";
 
 
 export function chirpsValidate(data: string) {
@@ -33,10 +33,16 @@ export function chirpsValidate(data: string) {
 
 export async function handlerPostChirp(req: Request, res: Response) {
     const data = req.body;
-    const bearerToken = getBearerToken(req);
-    const userId = validateJWT(bearerToken, config.secret); 
+    let userId;
 
-    const newChirp = await createChirp({
+    try {
+        const bearerToken = getBearerToken(req);
+        userId = validateJWT(bearerToken, config.secret); 
+    } catch (err) {
+        respondWithError(res, 401, `Authentification failed: ${err}`);
+        return;
+    }
+        const newChirp = await createChirp({
         body: chirpsValidate(data.body),
         userId: userId,
     });
