@@ -1,9 +1,38 @@
 import type { Request, Response, NextFunction } from "express";
 import { BadRequestError } from "./middleware.js";
 import { respondWithJSON, respondWithError } from "./json.js";
-import { createChirp, getAllChirps, getChirpById } from "../db/queries/chirps.js";
+import { createChirp, getAllChirps, getChirpById, deleteChirp } from "../db/queries/chirps.js";
 import { config } from "../config.js";
 import { getBearerToken, validateJWT } from "../auth.js";
+
+
+export async function handlerDeleteChirp(req: Request, res: Response) {
+    let userId;
+
+    try {
+        const bearerToken = getBearerToken(req);
+        userId = validateJWT(bearerToken, config.secret);
+    } catch (err) {
+        respondWithError(res, 401, `Authentification failed: ${err}`);
+        return;
+    }
+    
+    const chirpID = String(req.params.chirpID);
+    const chirpToDelete = await getChirpById(chirpID);
+
+    if (!chirpToDelete) {
+        respondWithError(res, 404, "Chirp not found");
+        return;
+    }
+
+    if (chirpToDelete.userId !== userId) {
+        respondWithError(res, 403, `Authentification failed: Your not the owner of the chirp`);
+        return;
+    } else {
+        const deletedChirp = await deleteChirp(chirpID);
+        respondWithJSON(res, 204, {});
+    }
+}
 
 
 export function chirpsValidate(data: string) {
@@ -59,8 +88,11 @@ export async function handlerGetAllChirps(req: Request, res: Response) {
 
 export async function handlerGetChirpById(req: Request, res: Response) {
     const chirpId = String(req.params.chirpID);
-    console.log("PARAMS", chirpId, typeof chirpId);
     const result = await getChirpById(chirpId);
 
+    if (!result) {
+        respondWithError(res, 404, "Chirp not found");
+        return;
+    }
     respondWithJSON(res, 200, result);
 }

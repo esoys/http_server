@@ -18,7 +18,6 @@ export async function makeRefreshToken(userId: string) {
         .onConflictDoNothing()
         .returning();
 
-    console.log("DEBUG MAKE REFRESH", result);
     return result;
 }
 
