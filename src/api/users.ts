@@ -1,9 +1,30 @@
-import { createUser, getUserByEmail } from "../db/queries/users.js";
+import { createUser, getUserByEmail, updateUser } from "../db/queries/users.js";
 import { respondWithJSON, respondWithError } from "./json.js";
 import type { Request, Response } from "express";
-import { hashPassword, checkPasswordHash, makeJWT, makeRefreshToken } from "../auth.js";
+import { getBearerToken, hashPassword, checkPasswordHash, makeJWT, validateJWT } from "../auth.js";
+import { makeRefreshToken } from "../db/queries/auth.js";
 import type { NewUser } from "../db/schema.js";
 import { config } from "../config.js";
+
+
+export async function handlerUpdateUser(req: Request, res: Response) {
+    let userId;
+
+    try {
+        const bearerToken = getBearerToken(req);
+        userId = validateJWT(bearerToken, config.secret); 
+    } catch (err) {
+        respondWithError(res, 401, `Authentification failed: ${err}`);
+        return;
+    }
+    
+    const newPassword = await hashPassword(req.body.password);
+    const newEmail = req.body.email;
+    const updatedUser = await updateUser(userId, newEmail, newPassword);
+    const publicUser = toPublicUser(updatedUser);
+
+    respondWithJSON(res, 200, publicUser);
+}
 
 
 export async function handlerCreateNewUser(req: Request, res: Response) {

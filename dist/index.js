@@ -5,7 +5,7 @@ import { handlerMetrics } from "./api/metrics.js";
 import { handlerReset } from "./api/reset.js";
 import { handlerReadiness } from "./api/readiness.js";
 import { handlerPostChirp, handlerGetAllChirps, handlerGetChirpById } from "./api/chirps.js";
-import { handlerCreateNewUser, handlerLogin } from "./api/users.js";
+import { handlerCreateNewUser, handlerLogin, handlerUpdateUser } from "./api/users.js";
 import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -45,6 +45,9 @@ app.post("/api/refresh", (req, res, next) => {
 });
 app.post("/api/revoke", (req, res, next) => {
     Promise.resolve(handlerRevokeRefreshToken(req, res)).catch(next);
+});
+app.put("/api/users", (req, res, next) => {
+    Promise.resolve(handlerUpdateUser(req, res)).catch(next);
 });
 app.use(errorMiddleware);
 app.listen(config.api.port, () => {

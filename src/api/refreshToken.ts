@@ -1,6 +1,7 @@
 import { config } from "../config.js"
 import type { Request, Response } from "express";
-import { getBearerToken, updateRefreshToken, makeJWT, getRefreshToken, getUserFromRefreshToken } from "../auth.js";
+import { getBearerToken, makeJWT } from "../auth.js";
+import { updateRefreshToken, getRefreshToken, getUserFromRefreshToken } from "../db/queries/auth.js"
 import { respondWithJSON, respondWithError } from "./json.js";
 
 
