@@ -1,10 +1,34 @@
-import { createUser, getUserByEmail, updateUser } from "../db/queries/users.js";
+import { createUser, getUserByEmail, upgradeUserToRed, updateUser } from "../db/queries/users.js";
 import { respondWithJSON, respondWithError } from "./json.js";
 import type { Request, Response } from "express";
-import { getBearerToken, hashPassword, checkPasswordHash, makeJWT, validateJWT } from "../auth.js";
+import { getBearerToken, hashPassword, checkPasswordHash, makeJWT, validateJWT, getAPIKey } from "../auth.js";
 import { makeRefreshToken } from "../db/queries/auth.js";
 import type { NewUser } from "../db/schema.js";
 import { config } from "../config.js";
+
+
+export async function handlerUpgradeUserToRed(req: Request, res: Response) {
+    if (req.body.event !== "user.upgraded") {
+        respondWithJSON(res, 204, {});
+        return;
+    } else {
+        const apiKey = getAPIKey(req);
+        console.log("DEBUG api key ", apiKey); 
+        console.log("ENV API ", config.api.polkaAPIKey);
+        if (apiKey !== config.api.polkaAPIKey) {
+            respondWithError(res, 401, "Wrong api key");
+            return;
+        }
+        const upgradedUser = await upgradeUserToRed(req.body.data.userId);
+
+        if (!upgradedUser) {
+            respondWithError(res, 404, "User not found");
+            return;
+        }
+
+        respondWithJSON(res, 204, {});
+    }
+}
 
 
 export async function handlerUpdateUser(req: Request, res: Response) {
@@ -61,6 +85,7 @@ export async function handlerLogin(req: Request, res: Response) {
         email: publicUser.email,
         token: token,
         refreshToken: newRefreshToken.token,
+        isChirpyRed: publicUser.isChirpyRed,
     });
 } 
 
@@ -72,5 +97,6 @@ function toPublicUser(user: NewUser): PublicUser {
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         email: user.email,
+        isChirpyRed: user.isChirpyRed,
     };
 }

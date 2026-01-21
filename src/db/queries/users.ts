@@ -3,6 +3,19 @@ import { NewUser, users } from "../schema.js";
 import { eq } from "drizzle-orm";
 
 
+export async function upgradeUserToRed(userId: string) {
+    const [user] = await db
+        .update(users)
+        .set({
+            isChirpyRed: true,
+        })
+        .where(eq(users.id, userId))
+        .returning();
+
+    return user;
+}
+
+
 export async function updateUser(userId: string, newEmail: string, newHashedPassword: string) {
     const [updatedUser] = await db
         .update(users)

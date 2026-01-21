@@ -1,4 +1,5 @@
 import { db } from "./db/index.js";
+import { UnauthorizedError } from "./api/middleware.js";
 import crypto from "crypto";
 import type { Request } from "express"; 
 import argon2 from "argon2";
@@ -60,7 +61,26 @@ export function validateJWT(tokenString: string, secret: string): string {
     }
 
     return decoded.sub;
+}
 
+
+export function getAPIKey(req: Request) {
+    const authHeader = req.get("Authorization");
+    if (!authHeader) {
+        throw new UnauthorizedError("Authorize header missing");
+    }
+
+    if (!authHeader.startsWith("ApiKey ")) {
+        throw new UnauthorizedError("Invalid Authorization header format");
+    }
+
+    const apiKey = authHeader.slice("ApiKey ".length).trim();
+
+    if (!apiKey) {
+        throw new UnauthorizedError("missing api key");
+    }
+
+    return apiKey;
 }
 
 

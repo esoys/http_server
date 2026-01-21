@@ -43,6 +43,13 @@
       "when": 1768854285291,
       "tag": "0005_right_kylun",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1769025098557,
+      "tag": "0006_premium_firestar",
+      "breakpoints": true
     }
   ]
 }

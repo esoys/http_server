@@ -7,6 +7,7 @@ export const config = {
         fileServerHits: 0,
         port: Number(envOrThrow("PORT")),
         platform: envOrThrow("PLATFORM"),
+        polkaAPIKey: envOrThrow("POLKA_KEY"),
     },
     db: {
         migrationConfig: migrationConfig,
