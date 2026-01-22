@@ -22,7 +22,7 @@ app.get("/api/healthz", (req, res, next) => {
 app.get("/admin/metrics", (req, res, next) => {
     Promise.resolve(handlerMetrics(req, res)).catch(next);
 });
-app.get("/api/chirps", (req, res, next) => {
+app.get("/api/chirps{/:authorId}{/:sort}", (req, res, next) => {
     Promise.resolve(handlerGetAllChirps(req, res)).catch(next);
 });
 app.get("/api/chirps/:chirpID", (req, res, next) => {

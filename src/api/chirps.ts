@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { BadRequestError } from "./middleware.js";
 import { respondWithJSON, respondWithError } from "./json.js";
-import { createChirp, getAllChirps, getChirpById, deleteChirp } from "../db/queries/chirps.js";
+import { createChirp, getAllChirps, getChirpById, deleteChirp, getAuthorsChirps } from "../db/queries/chirps.js";
 import { config } from "../config.js";
 import { getBearerToken, validateJWT } from "../auth.js";
 
@@ -81,7 +81,17 @@ export async function handlerPostChirp(req: Request, res: Response) {
 
 
 export async function handlerGetAllChirps(req: Request, res: Response) {
-    const result = await getAllChirps();
+    let result;
+    let sorting;
+
+    const authorId = req.query.authorId;
+    const sortingQuery = typeof req.query.sort === "string" ? req.query.sort : "asc";
+
+    if (typeof authorId === "string") {
+        result = await getAuthorsChirps(authorId, sortingQuery);
+    } else {
+        result = await getAllChirps(sortingQuery);
+    }
     respondWithJSON(res, 200, result);
 }; 
 
